@@ -16,7 +16,19 @@
     <div class="wrapper">
         <!-- 現在の天気の表示 -->
         <div class="current">
-            <div class="city-name"></div>
+            <div class="city-name">
+                <div class="selectbox">
+                    <select name="住所" id="select_box">
+                        <option value="tokyo" selected>東京都</option>
+                        <option value="kanagawa">神奈川県</option>
+                        <option value="chiba">千葉県</option>
+                        <option value="saitama">埼玉県</option>
+                        <option value="ibaraki">茨城県</option>
+                        <option value="fukuoka">福岡県</option>
+                        <option value="okinawa">沖縄県</option>
+                    </select>
+                </div>
+            </div>
             <div class="weather-icon"></div>
             <div class="current-temp"></div>
             <div class="current-date"></div>
@@ -43,16 +55,19 @@
         let newDate = '';
 
         // tokyo, nagoya, chiba, osaka, kyoto, fukuoka, yokohama, hakone, matsuyama, aomori, kanazawa,
-        let city = 'nagoya';
+        let city = 'tokyo';
         const API_KEY = '5e030478e6d164977e9b5deaf8b5bec4';
-        const current_url = 'https://api.openweathermap.org/data/2.5/weather?q=' + city + ',jp&units=metric&APPID=' +
+        let current_url = 'https://api.openweathermap.org/data/2.5/weather?q=' + city + ',jp&units=metric&APPID=' +
             API_KEY + '&lang=ja';
         const forecast_url = 'https://api.openweathermap.org/data/2.5/forecast?q=' + city + ',jp&units=metric&APPID=' +
             API_KEY + '&lang=ja';
 
+
+        
+
         //現在の天気HTML
         const current_view = (data) => {
-            crnt_city.innerHTML = `<h1>${data.name}の天気予報</h1>`;
+            // crnt_city.innerHTML = `<h1>${data.name}の天気予報</h1>`;
             crnt_icon.innerHTML =
                 `<img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" alt="">`;
             crnt_temp.innerHTML = `${Math.round(data.main.temp)}℃`;
@@ -128,6 +143,26 @@
                 forecast_view(data);
                 graph_view(data);
             });
+
+        const elem = document.getElementById('select_box');
+            elem.addEventListener('change', function(){
+            city = elem.value;
+            console.log(city);
+            current_url = 'https://api.openweathermap.org/data/2.5/weather?q=' + city + ',jp&units=metric&APPID=' + API_KEY + '&lang=ja';
+            fetch(current_url)
+            .then(res => {
+                // res.json()をreturnすることで、次のthenにAPIで取得できる
+                // データをオブジェクト形式で渡すことができる
+                return res.json();
+            })
+            .then(data => {
+                // res.json()で受け取った中身を確認
+                // 実際にはここでdataの中身を利用して様々な処理をする
+                console.log('現在の天気');
+                console.log(data);
+                current_view(data);
+            });
+        }, false);
 
         // 日付のフォーマット調整
         function dateFormat(d) {
