@@ -1,12 +1,13 @@
 body {
     font-family: 'M PLUS Rounded 1c', sans-serif;
+    font-weight: 800;
     color: #fff;
-    background: linear-gradient(270deg, rgb(87, 118, 172) 0%, rgb(138, 239, 255) 100%);
+    background: linear-gradient(90deg, rgba(126,184,255,1) 0%, rgba(0,105,191,1) 100%);
 }
 
 .wrapper {
     width: 800px;
-    margin: 70px auto 0;
+    margin: 30px auto 0;
 }
 
 h1 {
@@ -133,6 +134,9 @@ select{
     }
     .graph-area{
         display: none;
+    }
+    .selectbox {
+        width:80%;
     }
     /* .current .weather-icon img{
         width: 100%;

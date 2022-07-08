@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>天気予報アプリ</title>
     <link rel="stylesheet" href="css/reset.css">
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@300&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -16,19 +16,23 @@
     <div class="wrapper">
         <!-- 現在の天気の表示 -->
         <div class="current">
-            <div class="city-name">
-                <div class="selectbox">
-                    <select name="住所" id="select_box">
-                        <option value="tokyo" selected>東京都</option>
-                        <option value="kanagawa">神奈川県</option>
-                        <option value="chiba">千葉県</option>
-                        <option value="saitama">埼玉県</option>
-                        <option value="ibaraki">茨城県</option>
-                        <option value="fukuoka">福岡県</option>
-                        <option value="okinawa">沖縄県</option>
-                    </select>
-                </div>
+            <div class="selectbox">
+                <select name="住所" id="select_box">
+                    <option value="tokyo" selected>東京都</option>
+                    <option value="hokkaido">北海道</option>
+                    <option value="sapporo">札幌市</option>
+                    <option value="kanagawa">神奈川県</option>
+                    <option value="chiba-ken">千葉県</option>
+                    <option value="chiba">千葉市</option>
+                    <option value="katsuura">勝浦市</option>
+                    <option value="saitama-ken">埼玉県</option>
+                    <option value="saitama">さいたま市</option>
+                    <option value="ibaraki">茨城市</option>
+                    <option value="fukuoka">福岡市</option>
+                    <option value="okinawa">沖縄市</option>
+                </select>
             </div>
+            <div class="city-name"></div>
             <div class="weather-icon"></div>
             <div class="current-temp"></div>
             <div class="current-date"></div>
@@ -36,15 +40,13 @@
 
         <!-- 天気予報の表示  -->
         <div class="forecast"></div>
-        <!-- 気温のグラフ -->
-        <div class="graph-area">
-            <canvas id="myChart"></canvas>
-        </div>
+
     </div>
     <!-- Javascriptの記述 -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         "use strict";
+        const body = document.querySelector('body');
         const crnt_city = document.querySelector('.current .city-name');
         const crnt_icon = document.querySelector('.current .weather-icon');
         const crnt_temp = document.querySelector('.current .current-temp');
@@ -59,18 +61,28 @@
         const API_KEY = '5e030478e6d164977e9b5deaf8b5bec4';
         let current_url = 'https://api.openweathermap.org/data/2.5/weather?q=' + city + ',jp&units=metric&APPID=' +
             API_KEY + '&lang=ja';
-        const forecast_url = 'https://api.openweathermap.org/data/2.5/forecast?q=' + city + ',jp&units=metric&APPID=' +
+        let forecast_url = 'https://api.openweathermap.org/data/2.5/forecast?q=' + city + ',jp&units=metric&APPID=' +
             API_KEY + '&lang=ja';
-
-
-        
 
         //現在の天気HTML
         const current_view = (data) => {
-            // crnt_city.innerHTML = `<h1>${data.name}の天気予報</h1>`;
+            crnt_city.innerHTML = `<h1>${data.name}の天気予報</h1>`;
             crnt_icon.innerHTML =
                 `<img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" alt="">`;
             crnt_temp.innerHTML = `${Math.round(data.main.temp)}℃`;
+            if(Math.round(data.main.temp) < 20){
+                body.style.backgroundImage = "linear-gradient(90deg, rgba(149,244,249,1) 0%, rgba(0,187,255,1) 100%)";
+                console.log("20未満");
+            }else if(Math.round(data.main.temp) < 25){
+                body.style.backgroundImage = "linear-gradient(90deg, rgba(126,184,255,1) 0%, rgba(0,105,191,1) 100%)";
+                console.log("25未満");
+            }else if(Math.round(data.main.temp) < 30){
+                body.style.backgroundImage = "linear-gradient(90deg, rgba(246,188,135,1) 0%, rgba(233,115,0,1) 100%)";
+                console.log("30未満");
+            }else{
+                body.style.backgroundImage = "linear-gradient(90deg, rgba(249,149,149,1) 0%, rgba(255,0,0,1) 100%)";
+                console.log("30以上");
+            }
             crnt_date.innerHTML = dateFormat();
         };
         //天気予報 HTML
@@ -91,27 +103,6 @@
             }
             forecast.innerHTML = html;
         }
-
-        //graphの関数
-        // const day = [];
-        const temp_day = [];
-        const temp = [];
-        let temp_data, count = 0;
-        const graph_view = (data) => {
-            for (let i = 0; i <= 39; i += 1) {
-                const day = dateFormat(data.list[i].dt_txt);
-                temp_data = data.list[i].main.temp;
-                if (day[0] != '') {
-                    count++;
-                }
-                if (count === 2) {
-                    temp_day.push(day[1]);
-                    temp.push(temp_data);
-                }
-            }
-            console.log(temp_day);
-            graph_main(temp_day, temp);
-        };
 
         //現在の天気 読み込み
         fetch(current_url)
@@ -141,7 +132,6 @@
                 console.log('天気予報');
                 console.log(data);
                 forecast_view(data);
-                graph_view(data);
             });
 
         const elem = document.getElementById('select_box');
@@ -149,6 +139,7 @@
             city = elem.value;
             console.log(city);
             current_url = 'https://api.openweathermap.org/data/2.5/weather?q=' + city + ',jp&units=metric&APPID=' + API_KEY + '&lang=ja';
+            forecast_url = 'https://api.openweathermap.org/data/2.5/forecast?q=' + city + ',jp&units=metric&APPID=' + API_KEY + '&lang=ja';
             fetch(current_url)
             .then(res => {
                 // res.json()をreturnすることで、次のthenにAPIで取得できる
@@ -161,6 +152,21 @@
                 console.log('現在の天気');
                 console.log(data);
                 current_view(data);
+            });
+
+            // 天気予報 読み込み
+            fetch(forecast_url)
+            .then(res => {
+                // res.json()をreturnすることで、次のthenにAPIで取得できる
+                // データをオブジェクト形式で渡すことができる
+                return res.json();
+            })
+            .then(data => {
+                // res.json()で受け取った中身を確認
+                // 実際にはここでdataの中身を利用して様々な処理をする
+                console.log('天気予報');
+                console.log(data);
+                forecast_view(data);
             });
         }, false);
 
@@ -190,88 +196,6 @@
                 return day;
             }
         }
-
-
-        const graph_main = (temp_day, max_temp, min_temp) => {
-            const ctx = document.querySelector('#myChart');
-
-            const myLineChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: temp_day,
-                    datasets: [{
-                        label: "明日の気温",
-                        data: temp,
-                        borderColor: "rgba(200,0,0,1)",
-                        backgroundColor: "rgba(200,0,0,0)",
-                        pointBorderWidth: 5,
-                    }],
-                },
-                options: {
-                    layout: {
-                        padding: {
-                            bottom: 10,
-                            top: 10,
-                        }
-                    },
-
-                    scales: {
-                        x: {
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.3)',
-                                borderColor: 'rgba(255, 255, 255, 0.3)',
-                                tickColor: 'rgba(255, 255, 255, 0.3)'
-                            },
-                            ticks: {
-                                color: 'white',
-                            },
-                            title: {
-                                color: 'white',
-                                display: true,
-                                text: '時刻'
-                            }
-                        },
-                        y: {
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.3)',
-                                borderColor: 'rgba(255, 255, 255, 0.3)',
-                                tickColor: 'rgba(255, 255, 255, 0.3)'
-                            },
-                            ticks: {
-                                color: 'white',
-                            },
-                            title: {
-                                color: 'white',
-                                display: true,
-                                text: '気温℃'
-                            }
-                        }
-
-                    },
-                    plugins: {
-                        legend: {
-                            labels: {
-                                font: {
-                                    size: 14,
-                                },
-                                color: "#fff",
-                            },
-                            title: {
-                                font: {
-                                    size: 20,
-                                },
-                                display: true,
-                                color: 'white',
-                                text: '明日の気温',
-                            },
-                        },
-
-                    },
-
-                }
-            });
-        }
     </script>
 </body>
-
 </html>
